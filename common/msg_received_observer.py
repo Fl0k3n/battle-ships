@@ -8,6 +8,6 @@ class MsgReceivedObserver(ABC):
 
         Args:
             socket (socket): socket from which msg was received
-            msg (plain object): object of type {code: (Server/User Code), data: (any)}
+            msg (plain object): object of type {code: (ServerCode|UserCode), data: (any)}
         """
         pass

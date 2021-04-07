@@ -2,6 +2,8 @@ import socket
 import threading
 from dotenv import dotenv_values
 from msg_handler import MsgHandler
+from auth_handler import AuthHandler
+from db_handler import DBHandler
 
 
 class NetworkHandler:
@@ -9,8 +11,11 @@ class NetworkHandler:
     def __init__(self):
         self._setup_config()
 
+        self.db_handler = DBHandler()
+        self.auth_handler = AuthHandler(self.db_handler)
+
         self.connection_observers = []
-        self.msg_handler = MsgHandler()
+        self.msg_handler = MsgHandler(self.auth_handler)
 
         self.connection_observers.append(self.msg_handler)
 

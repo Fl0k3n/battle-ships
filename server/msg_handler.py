@@ -6,8 +6,13 @@ from common.msg_received_observer import MsgReceivedObserver
 
 
 class MsgHandler(ConnectionObserver, MsgReceivedObserver):
-    def __init__(self):
-        pass
+    def __init__(self, auth_handler):
+        self.auth_handler = auth_handler
+
+        self.handlers = {
+            ServerCodes.REGISTER: self.on_register,
+            ServerCodes.LOGIN: self.on_login
+        }
 
     def on_connected(self, socket):
         threading.Thread(target=CH.listen_for_messages,
@@ -20,7 +25,23 @@ class MsgHandler(ConnectionObserver, MsgReceivedObserver):
         code = msg['code']
         data = msg['data']
 
+        # should be handled differently
         if code == ServerCodes.DISCONNECTED:
             print('disconnected!')
+            self.on_disconnected(socket)
+        else:
+            self.handlers[code](socket, data)
 
-        print(f'from msg_handler, received: {code} : {data}')
+    def on_register(self, socket, data):
+        email = data['email']
+        password = data['password']
+
+        threading.Thread(target=self.auth_handler.register_user,
+                         args=(socket, email, password)).start()
+
+    def on_login(self, socket, data):
+        email = data['email']
+        password = data['password']
+
+        threading.Thread(target=self.auth_handler.login_user,
+                         args=(socket, email, password)).start()

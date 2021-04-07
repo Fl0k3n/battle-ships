@@ -13,7 +13,7 @@ class CommunicationHandler:
         Args:
             socket (socket): Socket to send data to
             code (ServerCode|UserCode): Code of data about to send
-            data (any): data to send
+            data (any): data to send, conversion to JSON has to be possible
         """
         msg = json.dumps({
             'code': code,
@@ -23,12 +23,13 @@ class CommunicationHandler:
         socket.send(bytes(f'{len(msg):>{cls.HEADER_SIZE}}{msg}', 'utf-8'))
 
     @classmethod
-    def listen_for_messages(cls, socket, caller):
+    def listen_for_messages(cls, socket, caller, only_one=False):
         """Listens for incoming messages from given socket, calls caller when one is received.
 
         Args:
             socket (socket): Socket to listen for messages from
             caller (MsgReceivedObserver): Object to react to received data
+            only_one (bool): if True, listening ends once first message is received
         """
         while True:
             full_msg = ''
@@ -56,3 +57,5 @@ class CommunicationHandler:
                     return
 
             caller.on_msg_received(socket, json.loads(full_msg))
+            if only_one:
+                return
