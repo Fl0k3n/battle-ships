@@ -1,0 +1,3 @@
+
+class AuthHandler:
+    pass
