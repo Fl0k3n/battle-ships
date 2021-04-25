@@ -3,20 +3,22 @@ from common.communication_handler import CommunicationHandler as CH
 from common.msg_codes import UserCodes
 import re
 import bcrypt
+from mongoengine.errors import ValidationError
 
 
 class AuthHandler:
     def __init__(self, db_handler):
         self.db_handler = db_handler
 
-    def register_user(self, socket, email, password):
+    def register_user(self, socket, email, password, request_msg):
         """Tries to register user with given email and password. 
-           Sends SUCCESS message on success, and REGISTER_FAILED on failure. 
+           Sends REGISTER_SUCCESS message on success, and REGISTER_FAILED on failure. 
 
         Args:
             socket (socket): socket from which request came
             email (string): users email
             password (string): users password in plain text
+            request_msg (any): original request message
         """
         validation_errs = self._validate_user_data(email, password)
 
@@ -30,13 +32,15 @@ class AuthHandler:
         try:
             self.db_handler.save_user(email, hashed)
             print(f'registered {email} -{password}-')
-        except Exception as e:  # TODO
+            CH.send_msg(socket, UserCodes.REGISTER_SUCCESS, request_msg)
+        except ValidationError as ve:
+            print(ve)
+            CH.send_msg(socket, UserCodes.REGISTER_FAILED,
+                        'unsupported email format')
+        except Exception as e:
             print(e)
             CH.send_msg(socket, UserCodes.REGISTER_FAILED,
                         '500 Internal Server Error')
-            return
-
-        CH.send_msg(socket, UserCodes.SUCCESS, '')
 
     def _validate_user_data(self, email, password):
         # basic validation should also be present on client side
@@ -53,7 +57,7 @@ class AuthHandler:
 
         return err_msgs
 
-    def login_user(self, socket, email, password):
+    def login_user(self, socket, email, password, request_msg):
         """Tries to login user with given email and password.
            Sends SUCCESS message on success, and LOGIN_FAILED on failure. 
 
@@ -64,19 +68,14 @@ class AuthHandler:
         """
         user = self.db_handler.find_user(email)
         err_msg = 'Wrong email or password'
-        print(email, password)
 
         if user is None:
             CH.send_msg(socket, UserCodes.LOGIN_FAILED, err_msg)
             return
 
-        correct_password = user['password']
-
-        if bcrypt.checkpw(password.encode(), correct_password):
-            print('match')
-            CH.send_msg(socket, UserCodes.SUCCESS, '')
+        if bcrypt.checkpw(password.encode(), user.password):
+            CH.send_msg(socket, UserCodes.LOGIN_SUCCESS, request_msg)
         else:
-            print('dismatch')
             CH.send_msg(socket, UserCodes.LOGIN_FAILED, err_msg)
 
         # TODO notify object controlling users

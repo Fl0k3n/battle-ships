@@ -1,17 +1,21 @@
+import mongoengine
+from models.user import User
+from models.history import History
+from models.game_stats import GameStats
 
 
 class DBHandler:
-    def __init__(self):
-        self.users = {}
+    def __init__(self, db_uri):
+        mongoengine.register_connection(
+            alias='main', name='bsdb', host=db_uri)
 
     def save_user(self, email, password):
-        # w tym momencie dane sa juz poprawne i mozna je zapisac
-        # poki co tylko haslo, potem dojda jeszcze rankingi
-        self.users[email] = {
-            'password': password
-        }
-        # should raise an exception on failure
+        user = User()
+        user.email = email
+        user.password = password
+        user.save()
+
+        return user
 
     def find_user(self, email):
-        # should return None if not found
-        return self.users.get(email)
+        return User.objects(email=email).first()

@@ -16,7 +16,7 @@ class CommunicationHandler:
             data (any): data to send, conversion to JSON has to be possible
         """
         msg = json.dumps({
-            'code': code,
+            'code': code.value,
             'data': data
         })
 

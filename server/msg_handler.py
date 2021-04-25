@@ -22,7 +22,7 @@ class MsgHandler(ConnectionObserver, MsgReceivedObserver):
         pass
 
     def on_msg_received(self, socket, msg):
-        code = msg['code']
+        code = ServerCodes(msg['code'])
         data = msg['data']
 
         # should be handled differently
@@ -37,11 +37,11 @@ class MsgHandler(ConnectionObserver, MsgReceivedObserver):
         password = data['password']
 
         threading.Thread(target=self.auth_handler.register_user,
-                         args=(socket, email, password)).start()
+                         args=(socket, email, password, data)).start()
 
     def on_login(self, socket, data):
         email = data['email']
         password = data['password']
 
         threading.Thread(target=self.auth_handler.login_user,
-                         args=(socket, email, password)).start()
+                         args=(socket, email, password, data)).start()

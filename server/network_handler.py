@@ -11,7 +11,7 @@ class NetworkHandler:
     def __init__(self):
         self._setup_config()
 
-        self.db_handler = DBHandler()
+        self.db_handler = DBHandler(self.DB_URI)
         self.auth_handler = AuthHandler(self.db_handler)
 
         self.connection_observers = []
@@ -41,3 +41,4 @@ class NetworkHandler:
         self.PORT = int(self.config['PORT']) if 'PORT' in self.config else 5555
         self.MAX_CONNECTIONS = int(self.config
                                    ['MAX_CONNECTIONS']) if 'MAX_CONNECTIONS' in self.config else 16
+        self.DB_URI = self.config['DB_URI']

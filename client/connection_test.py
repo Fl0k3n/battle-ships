@@ -3,7 +3,7 @@ import threading
 from dotenv import dotenv_values
 from common.communication_handler import CommunicationHandler as CH
 from common.msg_received_observer import MsgReceivedObserver
-from common.msg_codes import ServerCodes
+from common.msg_codes import ServerCodes, UserCodes
 
 
 class ConnectionTest(MsgReceivedObserver):
@@ -20,7 +20,7 @@ class ConnectionTest(MsgReceivedObserver):
         self.waiting_for_msg = False
 
     def on_msg_received(self, socket, msg):
-        code = msg['code']
+        code = UserCodes(msg['code'])
         data = msg['data']
 
         if self.waiting_for_msg:
