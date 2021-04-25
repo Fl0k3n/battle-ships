@@ -1,11 +1,11 @@
 import socket
 import threading
 from dotenv import dotenv_values
-from msg_handler import MsgHandler
-from auth_handler import AuthHandler
-from db_handler import DBHandler
-from user_handler import UserHandler
-from room_handler import RoomHandler
+from handlers.msg_handler import MsgHandler
+from handlers.auth_handler import AuthHandler
+from handlers.db_handler import DBHandler
+from handlers.user_handler import UserHandler
+from handlers.room_handler import RoomHandler
 
 
 class NetworkHandler:

@@ -1,5 +1,5 @@
-from login_observer import LoginObserver
-from room import Room
+from observers.login_observer import LoginObserver
+from models.room import Room
 
 
 class RoomHandler(LoginObserver):

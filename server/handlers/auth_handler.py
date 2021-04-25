@@ -1,4 +1,4 @@
-from db_handler import DBHandler
+from handlers.db_handler import DBHandler
 from common.communication_handler import CommunicationHandler as CH
 from common.msg_codes import UserCodes
 import re

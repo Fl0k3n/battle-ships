@@ -1,4 +1,4 @@
-from login_observer import LoginObserver
+from observers.login_observer import LoginObserver
 
 
 class UserHandler(LoginObserver):

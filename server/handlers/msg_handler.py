@@ -1,5 +1,5 @@
 import threading
-from connection_observer import ConnectionObserver
+from observers.connection_observer import ConnectionObserver
 from common.communication_handler import CommunicationHandler as CH
 from common.msg_codes import ServerCodes, UserCodes
 from common.msg_received_observer import MsgReceivedObserver
