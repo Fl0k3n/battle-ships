@@ -19,6 +19,10 @@ class Room:
         self.guest_socket = guest_socket
 
     def get_formatted_data(self):
+        """Returns room in json 'sendable' format.
+        Returns:
+            Dictionary: {'id': int, 'owner': (email), 'guest'?: (email)}
+        """
         res = {
             'id': self.id,
             'owner': self.owner_email
@@ -28,3 +32,9 @@ class Room:
             res['guest'] = self.guest_email
 
         return res
+
+    def get_owner_email(self):
+        return self.owner_email
+
+    def get_owner_socket(self):
+        return self.owner_socket

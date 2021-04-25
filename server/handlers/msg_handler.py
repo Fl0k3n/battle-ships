@@ -16,6 +16,7 @@ class MsgHandler(ConnectionObserver, MsgReceivedObserver):
             ServerCodes.LOGIN: self.on_login,
             ServerCodes.CREATE_ROOM: self.on_create_room,
             ServerCodes.GET_ROOMS: self.on_get_rooms,
+            ServerCodes.JOIN_ROOM: self.on_join_room,
         }
 
     def on_connected(self, socket):
@@ -40,27 +41,46 @@ class MsgHandler(ConnectionObserver, MsgReceivedObserver):
             self.handlers[code](socket, data)
 
     def on_register(self, socket, data):
-        email = data['email']
-        password = data['password']
-
-        self.auth_handler.register_user(socket, email, password, data)
+        """Sends REGISTER_SUCCESS message on success and REGISTER_FAILED on failure.
+        """
+        self.auth_handler.register_user(
+            socket, data['email'], data['password'], data)
 
     def on_login(self, socket, data):
-        email = data['email']
-        password = data['password']
-
-        self.auth_handler.login_user(socket, email, password, data)
+        """Sends LOGIN_SUCCESS message on success and LOGIN_FAILED on failure.
+        """
+        self.auth_handler.login_user(
+            socket, data['email'], data['password'], data)
 
     def on_create_room(self, socket, data):
+        """Sends ROOM_CREATED on success and ERROR on failure.
+        """
         try:
             idx = self.room_handler.create_room(socket)
             CH.send_msg(socket, UserCodes.ROOM_CREATED, {'room_id': idx})
         except AttributeError as ae:
             print(ae)
-            CH.send_msg(socket, UserCodes.ERROR,
-                        '5xx internal server error while creating a room.')
+            CH.send_msg(socket, UserCodes.ERROR, str(ae))
 
     def on_get_rooms(self, socket, data):
+        """Sends ROOMS_FETCHED on success.
+        """
         rooms = self.room_handler.get_rooms()
         response = [room.get_formatted_data() for room in rooms]
         CH.send_msg(socket, UserCodes.ROOMS_FETCHED, response)
+
+    def on_join_room(self, socket, data):
+        """Sends JOINED_ROOM to guest and GUEST_JOINED_ROOM to owner on success
+           and ERROR to guest on failure.
+        """
+        room_id = data['room_id']
+        try:
+            owner_socket, guest_email = self.room_handler.join_room(
+                socket, room_id)
+            CH.send_msg(socket, UserCodes.JOINED_ROOM,
+                        {'email': guest_email})
+            CH.send_msg(owner_socket, UserCodes.GUEST_JOINED_ROOM,
+                        {'room_id': room_id})
+        except AttributeError as ae:
+            print(ae)
+            CH.send_msg(socket, UserCodes.ERROR, str(ae))

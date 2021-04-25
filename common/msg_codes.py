@@ -19,6 +19,10 @@ class UserCodes(Enum):
     ROOM_CREATED = 7
     # data should contain list of rooms, see server/room.py/get_formatted_data for format
     ROOMS_FETCHED = 8
+    # data should be {room_id: (int)}, sent to user joining room
+    JOINED_ROOM = 9
+    # data should be {email: (guest email)}, sent to owner waiting for sb to join his room
+    GUEST_JOINED_ROOM = 10
 
 
 class ServerCodes(Enum):
@@ -31,3 +35,5 @@ class ServerCodes(Enum):
     CREATE_ROOM = 3
     # data should be an empty string
     GET_ROOMS = 4
+    # data should be {room_id: (int)}
+    JOIN_ROOM = 5
