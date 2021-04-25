@@ -1,4 +1,5 @@
 from network_handler import NetworkHandler
 
 if __name__ == '__main__':
-    NetworkHandler()
+    nh = NetworkHandler()
+    nh.listen_for_connections()

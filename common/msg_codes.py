@@ -3,16 +3,22 @@ from enum import Enum
 
 class UserCodes(Enum):
     DISCONNECTED = 0
+    # multipurpose code for internal server errors, data should be a string with reason
+    ERROR = 1
     # should be treated like HTTP 200, data should be an empty string
-    SUCCESS = 1
+    SUCCESS = 2
     # data should be a string with reason
-    REGISTER_FAILED = 2
+    REGISTER_FAILED = 3
     # data should be a string with reason
-    LOGIN_FAILED = 3
+    LOGIN_FAILED = 4
     # data should contain original request for which it succedeed, see REGISTER in ServerCodes
-    REGISTER_SUCCESS = 4
+    REGISTER_SUCCESS = 5
     # data should contain original request for which it succedeed, see LOGIN in ServerCodes
-    LOGIN_SUCCESS = 5
+    LOGIN_SUCCESS = 6
+    # data should be {room_id: (int)}
+    ROOM_CREATED = 7
+    # data should contain list of rooms, see server/room.py/get_formatted_data for format
+    ROOMS_FETCHED = 8
 
 
 class ServerCodes(Enum):
@@ -21,3 +27,7 @@ class ServerCodes(Enum):
     REGISTER = 1
     # data should contain plain object {email: (string), password: (string)}
     LOGIN = 2
+    # data should be an empty string
+    CREATE_ROOM = 3
+    # data should be an empty string
+    GET_ROOMS = 4

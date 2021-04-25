@@ -7,12 +7,14 @@ from mongoengine.errors import ValidationError
 
 
 class AuthHandler:
-    def __init__(self, db_handler):
+    def __init__(self, db_handler, user_handler, login_observers):
         self.db_handler = db_handler
+        self.user_handler = user_handler
+        self.login_observers = login_observers
 
     def register_user(self, socket, email, password, request_msg):
-        """Tries to register user with given email and password. 
-           Sends REGISTER_SUCCESS message on success, and REGISTER_FAILED on failure. 
+        """Tries to register user with given email and password.
+           Sends REGISTER_SUCCESS message on success, and REGISTER_FAILED on failure.
 
         Args:
             socket (socket): socket from which request came
@@ -59,13 +61,19 @@ class AuthHandler:
 
     def login_user(self, socket, email, password, request_msg):
         """Tries to login user with given email and password.
-           Sends SUCCESS message on success, and LOGIN_FAILED on failure. 
+           Sends LOGIN_SUCCESS message on success, and LOGIN_FAILED on failure.
 
         Args:
             socket (socket): socket from which request came
             email (string): users email
             password (string): users password in plain text
         """
+
+        if self.user_handler.is_logged_in(email):
+            CH.send_msg(socket, UserCodes.LOGIN_FAILED,
+                        f'User {email} is already logged in.')
+            return
+
         user = self.db_handler.find_user(email)
         err_msg = 'Wrong email or password'
 
@@ -74,8 +82,10 @@ class AuthHandler:
             return
 
         if bcrypt.checkpw(password.encode(), user.password):
+            # logged in
+            for login_observer in self.login_observers:
+                login_observer.on_login(socket, user)
+
             CH.send_msg(socket, UserCodes.LOGIN_SUCCESS, request_msg)
         else:
             CH.send_msg(socket, UserCodes.LOGIN_FAILED, err_msg)
-
-        # TODO notify object controlling users

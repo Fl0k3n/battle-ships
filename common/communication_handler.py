@@ -23,8 +23,10 @@ class CommunicationHandler:
         socket.send(bytes(f'{len(msg):>{cls.HEADER_SIZE}}{msg}', 'utf-8'))
 
     @classmethod
-    def listen_for_messages(cls, socket, caller, only_one=False):
-        """Listens for incoming messages from given socket, calls caller when one is received.
+    def listen_for_messages(cls, socket, caller=None, only_one=False):
+        """Listens for incoming messages from given socket.
+           If caller is specified, calls it after message is received,
+           if only_one is True, returns first received message.
 
         Args:
             socket (socket): Socket to listen for messages from
@@ -56,6 +58,7 @@ class CommunicationHandler:
                         })
                     return
 
-            caller.on_msg_received(socket, json.loads(full_msg))
+            if caller is not None:
+                caller.on_msg_received(socket, json.loads(full_msg))
             if only_one:
-                return
+                return json.loads(full_msg)
