@@ -39,7 +39,7 @@ class ConnectionTest(MsgReceivedObserver):
             return
 
         if code == UserCodes.GUEST_JOINED_ROOM:
-            print(f'user ${data} has joined your room')
+            print(f'user {data} has joined your room')
             # init game...
 
         if code == UserCodes.JOINED_ROOM:
