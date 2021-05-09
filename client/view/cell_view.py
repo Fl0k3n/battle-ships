@@ -43,15 +43,17 @@ class CellView(QWidget, EventEmitter):
 
         pawn = self.cell.get_pawn()
         if pawn is not None:
-            self.pawn_view = PawnView(
-                int(self.width * 0.8), int(self.height * 0.9))
+            self.pawn_view = self._create_pawn_view()
             self.pawn_view.draw(pawn)
             self.layout.addWidget(self.pawn_view)
 
-    def enterEvent(self, event):
+    def _create_pawn_view(self) -> PawnView:
+        return PawnView(int(self.width * 0.8), int(self.height * 0.9))
+
+    def enterEvent(self, event) -> None:
         self.call_listeners(Event.MOUSE_ENTERED)
 
-    def leaveEvent(self, event):
+    def leaveEvent(self, event) -> None:
         self.call_listeners(Event.MOUSE_LEFT)
 
     def has_pawn(self) -> bool:
@@ -72,3 +74,20 @@ class CellView(QWidget, EventEmitter):
         p.setColor(self.backgroundRole(
         ), self._MOVABLE_FIELD_COLOR if self.movable else self._get_color())
         self.setPalette(p)
+
+    def mousePressEvent(self, event) -> None:
+        self.call_listeners(Event.CELL_CLICKED)
+
+    def update(self) -> None:
+        pawn = self.cell.get_pawn()
+
+        if pawn is None and self.pawn_view is not None:
+            self.layout.removeWidget(self.pawn_view)
+            self.pawn_view = None
+        elif pawn is not None:
+            if self.pawn_view is not None:
+                self.layout.removeWidget(self.pawn_view)
+
+            self.pawn_view = self._create_pawn_view()
+            self.pawn_view.draw(pawn)
+            self.layout.addWidget(self.pawn_view)

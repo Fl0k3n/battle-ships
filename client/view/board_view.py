@@ -45,8 +45,14 @@ class BoardView(QWidget):
     def get_cell_views(self) -> Iterable[CellView]:
         return [cell_view for row in self.cell_views for cell_view in row]
 
+    def get_cell_view(self, cell: Cell) -> CellView:
+        i, j = cell.get_position()
+        return self.cell_views[i][j]
+
     def highlight_valid_cells(self, cell_view: CellView) -> None:
-        for i, j in self.board.get_valid_moves_from(cell_view.get_cell()):
+        for path in self.board.get_valid_moves_from(cell_view.get_cell()):
+            cell = path[0]
+            i, j = cell.get_position()
             self.hovered_cells.append((i, j))
             self.cell_views[i][j].toggle_movable()
 
@@ -54,3 +60,9 @@ class BoardView(QWidget):
         for i, j in self.hovered_cells:
             self.cell_views[i][j].toggle_movable()
         self.hovered_cells = []
+
+    def update_view_after_move(self, from_: Cell, to_: Cell, beaten_: Cell) -> None:
+        for cell in (from_, to_, beaten_):
+            if cell is not None:
+                i, j = cell.get_position()
+                self.cell_views[i][j].update()

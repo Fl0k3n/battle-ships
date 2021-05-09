@@ -1,1 +1,1 @@
-# battle-ships
+# <strike>battle-ships</strike> Checkers Online

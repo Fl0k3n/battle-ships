@@ -1,6 +1,6 @@
 from utils.color import Color
 from model.pawn import Pawn
-from typing import Tuple
+from typing import Tuple, Any
 
 
 class Cell:
@@ -35,3 +35,11 @@ class Cell:
 
     def __str__(self) -> str:
         return f'({self.i}, {self.j})'
+
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, Cell):
+            return self.i == other.i and self.j == other.j
+        return False
+
+    def __hash__(self):
+        return hash((self.i, self.j))

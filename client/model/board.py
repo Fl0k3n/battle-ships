@@ -9,8 +9,8 @@ class Board:
         self.n = n
         self.pawn_rows = pawn_rows
         self.board = []
-        self.white_pawns = {}
-        self.black_pawns = {}
+        self.white_pawns = {}  # (i, j) -> Pawn[color=White]
+        self.black_pawns = {}  # (i, j) -> Pawn[color=Black]
 
         self.pawns = {
             Color.WHITE: self.white_pawns,
@@ -49,11 +49,11 @@ class Board:
     def get_n_fields(self) -> int:
         return self.n
 
-    def get_valid_moves(self) -> Dict[Tuple[int, int], List[Tuple[int, int]]]:
+    def get_valid_moves(self) -> Dict[Cell, List[List[Cell]]]:
         return self.valid_moves
 
-    def get_valid_moves_from(self, cell: Cell) -> List[Tuple[int, int]]:
-        moves = self.valid_moves.get(cell.get_position())
+    def get_valid_moves_from(self, cell: Cell) -> List[List[Cell]]:
+        moves = self.valid_moves.get(cell)
         return moves if moves is not None else []
 
     def update_valid_moves(self, turn: Color) -> None:
@@ -77,9 +77,12 @@ class Board:
                     if not self.board[n_i][n_j].has_pawn():
                         valid_moves.append([(i, j), (n_i, n_j)])
 
-        self.valid_moves = {all_[0]: [] for all_ in valid_moves}
+        self.valid_moves = {self.get_cell(
+            *all_[0]): [] for all_ in valid_moves}
+
         for all_ in valid_moves:
-            self.valid_moves[all_[0]].extend(all_[1:])
+            rest_cells = [self.get_cell(*pos) for pos in all_[1:]]
+            self.valid_moves[self.get_cell(*all_[0])].append(rest_cells)
 
     def _get_neighs(self, i: int, j: int) -> List[Tuple[int, int]]:
         res = []
@@ -91,39 +94,49 @@ class Board:
                     res.append((n_i, n_j))
         return res
 
-    def _can_jump(self, after_jump_i, after_jump_j) -> bool:
+    def _can_jump(self, after_jump_i: int, after_jump_j: int) -> bool:
         return 0 <= after_jump_i < self.n and 0 <= after_jump_j < self.n \
             and not self.board[after_jump_i][after_jump_j].has_pawn()
 
-    def _get_max_consec(self, i, j, pawn: Pawn) -> List[List[Tuple[int, int]]]:
+    def _get_max_consec(self, i: int, j: int, pawn: Pawn) -> List[List[Tuple[int, int]]]:
+        """Gets paths with maximum score starting from cell(i, j) and beating enemy pawn in
+           every move.
+        Returns:
+            List[List[Tuple[int, int]]]: each list is a valid beating path of the same length
+        """
         changes = []
-        paths = []
+        color = pawn.get_color()
 
-        def traverse(cur_i, cur_j, last_i, last_j, color):
+        def traverse(cur_i, cur_j, last_i, last_j):
             paths = [[(cur_i, cur_j)]]
 
             for n_i, n_j in self._get_neighs(cur_i, cur_j):
                 if last_i == n_i and last_j == n_j:
                     continue
-                if self.board[n_i][n_j].get_color() == Color.reverse(color):
+
+                cell = self.board[n_i][n_j]
+                if cell.has_pawn() and cell.get_pawn().get_color() == Color.reverse(color):
                     delta_i = n_i - cur_i
                     delta_j = n_j - cur_j
 
                     new_i = n_i + delta_i
                     new_j = n_j + delta_j
+
                     if self._can_jump(new_i, new_j):
                         changes.append(self.board[n_i][n_j].remove_pawn())
 
-                        succ_paths = traverse(new_i, new_j, n_i, n_j, color)
-                        paths.extend([[(cur_i, cur_j)].extend(succ_path)
-                                     for succ_path in succ_paths])
+                        succ_paths = traverse(new_i, new_j, n_i, n_j)
+                        for succ_path in succ_paths:
+                            tmp = [(cur_i, cur_j)]
+                            tmp.extend(succ_path)
+                            paths.append(tmp)
 
                         pawn = changes.pop()
                         self.board[n_i][n_j].place_pawn(pawn)
 
             return paths
 
-        traverse(i, j, -1, -1, pawn.get_color())
+        paths = traverse(i, j, -1, -1)
 
         if len(paths) == 0:
             return []
@@ -131,3 +144,41 @@ class Board:
         best_len = len(max(*paths, key=lambda x: len(x)))
 
         return [path for path in paths if len(path) == best_len]
+
+    def _get_intermediate_cell(self, start: Cell, end: Cell) -> Cell:
+        old_i, old_j = start.get_position()
+        new_i, new_j = end.get_position()
+
+        di, dj = new_i - old_i, new_j - old_j
+        if abs(di) < 2:
+            return None
+
+        return self.get_cell(old_i + di // 2, old_j + dj // 2)
+
+    def move(self, from_: Cell, to_: Cell) -> Cell:
+        """Moves pawn from one cell to another, removes beaten pawn if one exists,
+            updates valid paths.
+        Returns:
+            Cell: Cell of beaten pawn if one was beaten, else None
+        """
+        beaten_cell = self._get_intermediate_cell(from_, to_)
+
+        pawn = from_.remove_pawn()
+        self.pawns[pawn.get_color()].pop(pawn.get_position())
+
+        if beaten_cell is not None:
+            beaten_pawn = beaten_cell.remove_pawn()
+            self.pawns[beaten_pawn.get_color()].pop(beaten_pawn.get_position())
+
+        pawn.move(*to_.get_position())
+        to_.place_pawn(pawn)
+        self.pawns[pawn.get_color()][pawn.get_position()] = pawn
+
+        old_moves = self.get_valid_moves_from(from_)
+        choosen_paths = [path[1:]
+                         for path in old_moves if path[0] == to_ and len(path) > 1]
+        self.valid_moves = {
+            to_: choosen_paths
+        }
+
+        return beaten_cell

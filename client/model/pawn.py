@@ -1,4 +1,5 @@
 from utils.color import Color
+from typing import Tuple
 
 
 class Pawn:
@@ -13,3 +14,6 @@ class Pawn:
 
     def get_color(self) -> Color:
         return self.color
+
+    def get_position(self) -> Tuple[int, int]:
+        return self.i, self.j
