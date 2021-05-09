@@ -1,5 +1,4 @@
 from PyQt5.QtWidgets import QWidget
-from model.pawn import Pawn
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtGui import QPixmap
 from utils.color import Color
@@ -17,8 +16,8 @@ class PawnView(QWidget):
         self.width = width
         self.height = height
 
-    def draw(self, pawn: Pawn) -> None:
-        path = self._WHITE_PATH if pawn.get_color() == Color.WHITE else self._BLACK_PATH
+    def draw(self, color: Color) -> None:
+        path = self._WHITE_PATH if color == Color.WHITE else self._BLACK_PATH
         pixmap = QPixmap(path).scaledToWidth(
             self.width).scaledToHeight(self.height)
 

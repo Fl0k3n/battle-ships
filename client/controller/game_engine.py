@@ -49,11 +49,14 @@ class GameEngine:
         Returns:
             CellView: view of cell from which move should be continued or None if it was last move
         """
-        beaten_cell = self.board.move(from_, to_)
+        beaten_cell, transformed = self.board.move(from_, to_)
         self.board_view.update_view_after_move(from_, to_, beaten_cell)
 
-        if len(self.board.get_valid_moves_from(to_)) == 0:
+        if not self.board.has_valid_move(to_):
             self.next_round()
             return None
 
         return self.board_view.get_cell_view(to_)
+
+    def has_valid_move(self, cell_view: CellView) -> bool:
+        return self.board.has_valid_move(cell_view.get_cell())

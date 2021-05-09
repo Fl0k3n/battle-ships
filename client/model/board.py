@@ -1,7 +1,12 @@
 from utils.color import Color
 from model.cell import Cell
 from model.pawn import Pawn
+from model.queen_pawn import QueenPawn
 from typing import List, Tuple, Dict
+
+
+def sign(x):
+    return 1 if x >= 0 else -1
 
 
 class Board:
@@ -56,6 +61,9 @@ class Board:
         moves = self.valid_moves.get(cell)
         return moves if moves is not None else []
 
+    def has_valid_move(self, cell: Cell) -> bool:
+        return len(self.get_valid_moves_from(cell)) > 0
+
     def update_valid_moves(self, turn: Color) -> None:
         valid_moves = []
         best_moves_len = 0
@@ -73,7 +81,7 @@ class Board:
         if best_moves_len == 0:
             # handle free positions separately
             for (i, j), pawn in self.pawns[turn].items():
-                for n_i, n_j in self._get_neighs(i, j):
+                for n_i, n_j in self._get_neighs(i, j, pawn):
                     if not self.board[n_i][n_j].has_pawn():
                         valid_moves.append([(i, j), (n_i, n_j)])
 
@@ -84,14 +92,13 @@ class Board:
             rest_cells = [self.get_cell(*pos) for pos in all_[1:]]
             self.valid_moves[self.get_cell(*all_[0])].append(rest_cells)
 
-    def _get_neighs(self, i: int, j: int) -> List[Tuple[int, int]]:
+    def _get_neighs(self, i: int, j: int, pawn: Pawn) -> List[Tuple[int, int]]:
         res = []
-        for di in (-1, 1):
-            for dj in (-1, 1):
-                n_i = i + di
-                n_j = j + dj
-                if 0 <= n_i < self.n and 0 <= n_j < self.n:
-                    res.append((n_i, n_j))
+        for di, dj in pawn.get_neigh_deltas():
+            n_i = i + di
+            n_j = j + dj
+            if 0 <= n_i < self.n and 0 <= n_j < self.n:
+                res.append((n_i, n_j))
         return res
 
     def _can_jump(self, after_jump_i: int, after_jump_j: int) -> bool:
@@ -110,14 +117,14 @@ class Board:
         def traverse(cur_i, cur_j, last_i, last_j):
             paths = [[(cur_i, cur_j)]]
 
-            for n_i, n_j in self._get_neighs(cur_i, cur_j):
+            for n_i, n_j in self._get_neighs(cur_i, cur_j, pawn):
                 if last_i == n_i and last_j == n_j:
                     continue
 
                 cell = self.board[n_i][n_j]
                 if cell.has_pawn() and cell.get_pawn().get_color() == Color.reverse(color):
-                    delta_i = n_i - cur_i
-                    delta_j = n_j - cur_j
+                    delta_i = sign(n_i - cur_i)
+                    delta_j = sign(n_j - cur_j)
 
                     new_i = n_i + delta_i
                     new_j = n_j + delta_j
@@ -131,8 +138,8 @@ class Board:
                             tmp.extend(succ_path)
                             paths.append(tmp)
 
-                        pawn = changes.pop()
-                        self.board[n_i][n_j].place_pawn(pawn)
+                        chenged_pawn = changes.pop()
+                        self.board[n_i][n_j].place_pawn(chenged_pawn)
 
             return paths
 
@@ -149,22 +156,36 @@ class Board:
         old_i, old_j = start.get_position()
         new_i, new_j = end.get_position()
 
-        di, dj = new_i - old_i, new_j - old_j
-        if abs(di) < 2:
-            return None
+        di, dj = sign(new_i - old_i), sign(new_j - old_j)
+        cur_i, cur_j = old_i + di, old_j + dj
 
-        return self.get_cell(old_i + di // 2, old_j + dj // 2)
+        while cur_i != new_i and cur_j != new_j:
+            cell = self.get_cell(cur_i, cur_j)
+            if cell.has_pawn():
+                return cell
+            cur_i += di
+            cur_j += dj
 
-    def move(self, from_: Cell, to_: Cell) -> Cell:
+        return None
+
+    def move(self, from_: Cell, to_: Cell) -> Tuple[Cell, bool]:
         """Moves pawn from one cell to another, removes beaten pawn if one exists,
             updates valid paths.
         Returns:
             Cell: Cell of beaten pawn if one was beaten, else None
+            Tuple[Cell, bool]: Cell of beaten pawn if one was beaten, else None and True if pawn transformed to queen
         """
-        beaten_cell = self._get_intermediate_cell(from_, to_)
+        transformed = False
 
+        beaten_cell = self._get_intermediate_cell(from_, to_)
         pawn = from_.remove_pawn()
         self.pawns[pawn.get_color()].pop(pawn.get_position())
+
+        if pawn.get_color() == Color.BLACK and to_.get_position()[0] == self.n - 1 or \
+                pawn.get_color() == Color.WHITE and to_.get_position()[0] == 0:
+            transformed = True
+            i, j = pawn.get_position()
+            pawn = QueenPawn(i, j, pawn.get_color(), self.n)
 
         if beaten_cell is not None:
             beaten_pawn = beaten_cell.remove_pawn()
@@ -181,4 +202,4 @@ class Board:
             to_: choosen_paths
         }
 
-        return beaten_cell
+        return beaten_cell, transformed

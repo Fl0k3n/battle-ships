@@ -44,7 +44,7 @@ class GuiEventHandler:
         if emitter.has_pawn() and emitter.get_pawn_color() == turn:
             if self.clicked_cell == emitter:
                 self.clicked_cell = None
-            else:
+            elif self.game_engine.has_valid_move(emitter):
                 self.board_view.clear_highlight()
                 self.board_view.highlight_valid_cells(emitter)
                 self.clicked_cell = self.hovered_cell = emitter

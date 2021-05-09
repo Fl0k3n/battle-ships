@@ -3,6 +3,7 @@ from PyQt5.QtGui import QColor
 from model.cell import Cell
 from utils.color import Color
 from view.pawn_view import PawnView
+from view.queen_pawn_view import QueenPawnView
 from utils.event_emitter import EventEmitter
 from utils.events import Event
 from typing import Tuple
@@ -19,6 +20,10 @@ class CellView(QWidget, EventEmitter):
 
         self.width = width
         self.height = height
+
+        self.pawn_view_width = int(self.width * 0.95)
+        self.pawn_view_height = int(self.height * 0.95)
+
         self.cell = cell
 
         self.layout = QVBoxLayout(self)
@@ -43,12 +48,9 @@ class CellView(QWidget, EventEmitter):
 
         pawn = self.cell.get_pawn()
         if pawn is not None:
-            self.pawn_view = self._create_pawn_view()
-            self.pawn_view.draw(pawn)
+            self.pawn_view = pawn.draw(
+                self.pawn_view_width, self.pawn_view_height)
             self.layout.addWidget(self.pawn_view)
-
-    def _create_pawn_view(self) -> PawnView:
-        return PawnView(int(self.width * 0.8), int(self.height * 0.9))
 
     def enterEvent(self, event) -> None:
         self.call_listeners(Event.MOUSE_ENTERED)
@@ -88,6 +90,6 @@ class CellView(QWidget, EventEmitter):
             if self.pawn_view is not None:
                 self.layout.removeWidget(self.pawn_view)
 
-            self.pawn_view = self._create_pawn_view()
-            self.pawn_view.draw(pawn)
+            self.pawn_view = pawn.draw(
+                self.pawn_view_width, self.pawn_view_height)
             self.layout.addWidget(self.pawn_view)
