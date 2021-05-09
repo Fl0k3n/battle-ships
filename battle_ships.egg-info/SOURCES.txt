@@ -4,4 +4,9 @@ battle_ships.egg-info/PKG-INFO
 battle_ships.egg-info/SOURCES.txt
 battle_ships.egg-info/dependency_links.txt
 battle_ships.egg-info/top_level.txt
+client/__init__.py
+client/connection_test.py
 common/__init__.py
+common/communication_handler.py
+common/msg_codes.py
+common/msg_received_observer.py
