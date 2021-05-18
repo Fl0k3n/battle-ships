@@ -31,7 +31,7 @@ class MsgHandler(ConnectionObserver, MsgReceivedObserver):
         socket.close()
 
     def on_msg_received(self, socket, msg):
-        code = ServerCodes(msg['code'])
+        code = msg['code']
         data = msg['data']
 
         # should be handled differently

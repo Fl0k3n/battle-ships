@@ -9,7 +9,7 @@ class History(mongoengine.Document):
     game_len = mongoengine.IntField()
     start_date = mongoengine.DateTimeField()
 
-    meta: {
+    meta = {
         'db_alias': 'main',
         'collection': 'history'
     }

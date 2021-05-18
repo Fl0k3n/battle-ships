@@ -24,7 +24,7 @@ class ConnectionTest(MsgReceivedObserver):
 
     # can also use blocking listen_for_messages without caller, it will return response
     def on_msg_received(self, socket, msg):
-        code = UserCodes(msg['code'])
+        code = msg['code']
         data = msg['data']
 
         if code == UserCodes.LOGIN_SUCCESS:
@@ -112,5 +112,6 @@ class ConnectionTest(MsgReceivedObserver):
 
 
 if __name__ == '__main__':
+    CH.set_code_wrapper(UserCodes)
     ct = ConnectionTest()
     ct.emulate_app()

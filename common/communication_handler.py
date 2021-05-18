@@ -1,10 +1,16 @@
 import socket
 import json
-from common.msg_codes import ServerCodes
+from common.msg_codes import ServerCodes, UserCodes
+from typing import Union
 
 
 class CommunicationHandler:
     HEADER_SIZE = 10
+    CODE_WRAPPER = None
+
+    @classmethod
+    def set_code_wrapper(cls, wrapper: Union[ServerCodes, UserCodes]) -> None:
+        cls.CODE_WRAPPER = wrapper
 
     @classmethod
     def send_msg(cls, socket, code, data):
@@ -58,7 +64,12 @@ class CommunicationHandler:
                         })
                     return
 
+            msg_dict = json.loads(full_msg)
+            # wrap integer code response in Enum code
+            if cls.CODE_WRAPPER is not None:
+                msg_dict['code'] = cls.CODE_WRAPPER(msg_dict['code'])
+
             if caller is not None:
-                caller.on_msg_received(socket, json.loads(full_msg))
+                caller.on_msg_received(socket, msg_dict)
             if only_one:
-                return json.loads(full_msg)
+                return msg_dict

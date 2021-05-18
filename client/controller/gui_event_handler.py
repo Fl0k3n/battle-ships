@@ -24,6 +24,7 @@ class GuiEventHandler:
         self.clicked_cell = None
         self.move_initiated = False  # if player has already choosen path
 
+    # GAME GUI EVENTS
     def on_mouse_enter(self, event: Event, emitter: CellView) -> None:
         turn = self.game_engine.get_turn()
 
@@ -65,3 +66,5 @@ class GuiEventHandler:
                 self.hovered_cell = self.clicked_cell = None
         else:
             print('invalid')
+
+    # AUTH GUI EVENTS

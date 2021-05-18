@@ -7,6 +7,4 @@ class Color(Enum):
 
     @classmethod
     def reverse(cls, color):
-        if color == cls.WHITE:
-            return cls.BLACK
-        return cls.WHITE
+        return cls.BLACK if color == cls.WHITE else cls.WHITE

@@ -2,14 +2,12 @@ from PyQt5.QtWidgets import QWidget
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtGui import QPixmap
 from utils.color import Color
-from pathlib import Path
-
-parent_path = Path(__file__).parent.parent
+from utils.assets_loader import AssetsLoader
 
 
 class PawnView(QWidget):
-    _WHITE_PATH = f'{parent_path}/assets/white_pawn.png'
-    _BLACK_PATH = f'{parent_path}/assets/black_pawn.png'
+    _WHITE_PATH = AssetsLoader.get_path('white_pawn.png')
+    _BLACK_PATH = AssetsLoader.get_path('black_pawn.png')
 
     def __init__(self, width, height, parent: QWidget = None):
         super().__init__(parent)

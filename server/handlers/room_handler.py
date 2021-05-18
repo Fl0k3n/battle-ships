@@ -89,4 +89,4 @@ class RoomHandler(LoginObserver):
         return list(self.rooms.values())
 
     def get_joinable_rooms(self):
-        return [rooms[room_id] for room_id in self.joinable_rooms]
+        return [self.rooms[room_id] for room_id in self.joinable_rooms]

@@ -1,5 +1,5 @@
 from utils.events import Event
-from typing import Callable
+from typing import Callable, Any
 
 
 class EventEmitter:
@@ -12,9 +12,12 @@ class EventEmitter:
         else:
             self.listeners[event].append(listener)
 
-    def call_listeners(self, event: Event) -> None:
+    def call_listeners(self, event: Event, data: Any = None) -> None:
         listeners = self.listeners.get(event)
 
         if listeners is not None:
             for listener in listeners:
-                listener(event, self)
+                if data is None:
+                    listener(event, self)
+                else:
+                    listener(event, self, data)

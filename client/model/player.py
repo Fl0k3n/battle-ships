@@ -13,3 +13,6 @@ class Player:
 
     def get_color(self) -> Color:
         return self.color
+
+    def get_email(self) -> str:
+        return self.email

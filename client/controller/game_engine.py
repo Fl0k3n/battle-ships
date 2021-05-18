@@ -52,7 +52,7 @@ class GameEngine:
         beaten_cell, transformed = self.board.move(from_, to_)
         self.board_view.update_view_after_move(from_, to_, beaten_cell)
 
-        if not self.board.has_valid_move(to_):
+        if not self.board.has_valid_move(to_) or transformed:
             self.next_round()
             return None
 

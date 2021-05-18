@@ -181,8 +181,10 @@ class Board:
         pawn = from_.remove_pawn()
         self.pawns[pawn.get_color()].pop(pawn.get_position())
 
-        if pawn.get_color() == Color.BLACK and to_.get_position()[0] == self.n - 1 or \
-                pawn.get_color() == Color.WHITE and to_.get_position()[0] == 0:
+        if not isinstance(pawn, QueenPawn) and \
+           (pawn.get_color() == Color.BLACK and to_.get_position()[0] == self.n - 1 or
+                pawn.get_color() == Color.WHITE and to_.get_position()[0] == 0):
+            print('transforming')
             transformed = True
             i, j = pawn.get_position()
             pawn = QueenPawn(i, j, pawn.get_color(), self.n)
