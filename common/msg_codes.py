@@ -24,6 +24,8 @@ class UserCodes(Enum):
     JOINED_ROOM = 9
     # data should be {email: (guest email)}, sent to owner waiting for sb to join his room
     GUEST_JOINED_ROOM = 10
+    # data should be a string with reason
+    FAILED_TO_JOIN_ROOM = 11
 
 
 class ServerCodes(Enum):

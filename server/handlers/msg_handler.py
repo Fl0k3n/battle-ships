@@ -78,9 +78,9 @@ class MsgHandler(ConnectionObserver, MsgReceivedObserver):
             owner_socket, guest_email = self.room_handler.join_room(
                 socket, room_id)
             CH.send_msg(socket, UserCodes.JOINED_ROOM,
-                        {'email': guest_email})
-            CH.send_msg(owner_socket, UserCodes.GUEST_JOINED_ROOM,
                         {'room_id': room_id})
+            CH.send_msg(owner_socket, UserCodes.GUEST_JOINED_ROOM,
+                        {'email': guest_email})
         except AttributeError as ae:
             print(ae)
-            CH.send_msg(socket, UserCodes.ERROR, str(ae))
+            CH.send_msg(socket, UserCodes.FAILED_TO_JOIN_ROOM, str(ae))

@@ -10,23 +10,30 @@ class RoomList(QWidget):
         self.layout = QVBoxLayout(self)
         self.msg_label = QLabel("No rooms available")
         self.layout.addWidget(self.msg_label)
+        self.room_widgets = []
         self.room_count = 0
 
     def clear_list(self):
         if self.room_count > 0:
+            self.msg_label = QLabel("No rooms available")
             self.layout.addWidget(self.msg_label)
 
         self.room_count = 0
-        del self.layout
-        self.layout = QVBoxLayout(self)
+        for widget in self.room_widgets:
+            self.layout.removeWidget(widget)
+            widget.setParent(None)
+
+        self.room_widgets = []
 
     def append_room(self, room: Room) -> None:
         if self.room_count == 0:
             self.layout.removeWidget(self.msg_label)
             self.msg_label.setParent(None)
+            del self.msg_label
 
         self.room_count += 1
         room_view = QWidget()
+        self.room_widgets.append(room_view)
         room_layout = QGridLayout(room_view)
 
         room_layout.addWidget(QLabel(f'owner: {room.owner_email}'), 1, 1)

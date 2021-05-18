@@ -54,4 +54,4 @@ class MainWindow(QDialog, EventEmitter):
         print('quit')
 
     def on_join_room(self, idx: int) -> None:
-        print(f'join me {idx}')
+        self.call_listeners(Event.JOIN_ROOM, idx)

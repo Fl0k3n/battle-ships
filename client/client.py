@@ -1,5 +1,3 @@
-from controller.game_engine import GameEngine
-from controller.gui_event_handler import GuiEventHandler
 from controller.session_handler import SessionHandler
 from view.game_window import GameWindow
 from common.communication_handler import CommunicationHandler as CH

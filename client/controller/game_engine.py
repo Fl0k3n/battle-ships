@@ -8,12 +8,10 @@ from model.player import Player
 
 
 class GameEngine:
-    def __init__(self, game_window: GameWindow):
-        self.p1 = Player('kntp1')
-        self.p2 = Player('kntp2')
-
-        self.p1.join_game(Color.WHITE)
-        self.p2.join_game(Color.BLACK)
+    def __init__(self, game_window: GameWindow, owner: Player, guest: Player = None):
+        self.owner = owner
+        self.guest = guest
+        self.owner.join_game(Color.WHITE)
 
         self.board = Board()
         self.game_window = game_window
@@ -22,8 +20,6 @@ class GameEngine:
         self.turn = Color.WHITE
 
         self.board.update_valid_moves(self.turn)
-        for move_list in self.board.get_valid_moves().values():
-            print([str(cell) for ml in move_list for cell in ml])
 
     def next_round(self):
         self.turn = Color.reverse(self.turn)
@@ -31,11 +27,14 @@ class GameEngine:
         # for move_list in self.board.get_valid_moves().values():
         #     print([str(cell) for ml in move_list for cell in ml])
 
+    def set_guest(self, guest: Player) -> None:
+        self.guest = guest
+
     def get_board_view(self) -> BoardView:
         return self.board_view
 
     def get_current_player(self) -> Player:
-        return self.p1 if self.p1.get_color() == self.turn else self.p2
+        return self.owner if self.owner.get_color() == self.turn else self.guest
 
     def get_turn(self) -> Color:
         return self.turn
@@ -59,3 +58,7 @@ class GameEngine:
 
     def has_valid_move(self, cell_view: CellView) -> bool:
         return self.board.has_valid_move(cell_view.get_cell())
+
+    def is_running(self) -> bool:
+        """returns true if 2 players have joined"""
+        return self.guest is not None
