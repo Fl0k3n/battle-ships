@@ -2,13 +2,13 @@ from model.board import Board
 from model.cell import Cell
 from view.board_view import BoardView
 from view.cell_view import CellView
-from view.game_view import GameView
+from view.game_window import GameWindow
 from utils.color import Color
 from model.player import Player
 
 
 class GameEngine:
-    def __init__(self):
+    def __init__(self, game_window: GameWindow):
         self.p1 = Player('kntp1')
         self.p2 = Player('kntp2')
 
@@ -16,10 +16,9 @@ class GameEngine:
         self.p2.join_game(Color.BLACK)
 
         self.board = Board()
-        self.board_view = BoardView(self.board, 640, 640, True)
-        self.board_view.draw()
+        self.game_window = game_window
+        self.board_view = self.game_window.draw_board(self.board)
 
-        self.game_view = GameView(self.board_view, 400, 400, 800, 800)
         self.turn = Color.WHITE
 
         self.board.update_valid_moves(self.turn)

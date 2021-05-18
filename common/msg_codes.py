@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class UserCodes(Enum):
+    # no data
     DISCONNECTED = 0
     # multipurpose code for internal server errors, data should be a string with reason
     ERROR = 1
@@ -26,6 +27,7 @@ class UserCodes(Enum):
 
 
 class ServerCodes(Enum):
+    # no data
     DISCONNECTED = 0
     # data should contain plain object {email: (string), password: (string)}
     REGISTER = 1

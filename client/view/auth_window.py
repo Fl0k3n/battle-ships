@@ -7,8 +7,8 @@ from threading import Timer
 from model.player import Player
 
 
-class AppWindow(QDialog, EventEmitter):
-    def __init__(self, width: int, height: int):
+class AuthWindow(QDialog, EventEmitter):
+    def __init__(self, x: int, y: int, width: int, height: int):
         super().__init__()
         super(EventEmitter, self).__init__()
 
@@ -23,10 +23,8 @@ class AppWindow(QDialog, EventEmitter):
         self.layout.addWidget(self.login_view)
         self.current_view = self.login_view
 
-        self.setGeometry(100, 100, width, height)
-        self.setWindowTitle("title")
-
-        self.show()
+        self.setGeometry(x, y, width, height)
+        self.setWindowTitle("Auth")
 
     def on_login(self, email: str, passw: str) -> None:
         self.msg_label.setText('')
@@ -54,9 +52,6 @@ class AppWindow(QDialog, EventEmitter):
 
     def register_failed(self, reason: str) -> None:
         self.msg_label.setText(f'Register failed.\n{reason}')
-
-    def user_logged_in(self, player: Player) -> None:
-        self.msg_label.setText(f'{player.get_email()} logged in')
 
     def login_failed(self, reason: str) -> None:
         self.msg_label.setText(f'Login failed.\n{reason}')
