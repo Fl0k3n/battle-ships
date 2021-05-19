@@ -10,3 +10,6 @@ class Event(Enum):
     JOIN_ROOM = 5          # data is room id
     CREATE_ROOM = 6
     REFRESH_ROOMS = 7
+    # data is List[(old_i, old_j), (new_i, new_j), (beaten_i, beaten_j), last_move?]
+    # where (beaten_i, beaten_j) should be -1, -1 if nothing was beaten last_move should be true or false
+    PLAYER_MOVED = 8

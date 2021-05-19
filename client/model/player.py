@@ -2,10 +2,10 @@ from utils.color import Color
 
 
 class Player:
-    def __init__(self, email: str):
+    def __init__(self, email: str, color: Color = None):
         self.email = email
         self.in_game = False
-        self.color = None
+        self.color = color
 
     def join_game(self, as_who: Color) -> None:
         self.in_game = True

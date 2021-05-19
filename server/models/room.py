@@ -38,3 +38,6 @@ class Room:
 
     def get_owner_socket(self):
         return self.owner_socket
+
+    def get_opponents_socket(self, socket):
+        return self.owner_socket if self.guest_socket == socket else self.guest_socket

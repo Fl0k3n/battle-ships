@@ -1,14 +1,14 @@
 from controller.game_engine import GameEngine
 from typing import Iterable
+from model.player import Player
 from utils.events import Event
-from utils.event_emitter import EventEmitter
-from view.board_view import BoardView
 from view.cell_view import CellView
 
 
 class GuiEventHandler:
-    def __init__(self, game_engine: GameEngine):
+    def __init__(self, game_engine: GameEngine, player: Player):
         self.game_engine = game_engine
+        self.player = player
         self.board_view = game_engine.get_board_view()
 
         for cell_view in self.board_view.get_cell_views():
@@ -27,6 +27,8 @@ class GuiEventHandler:
     # GAME GUI EVENTS
     def on_mouse_enter(self, event: Event, emitter: CellView) -> None:
         turn = self.game_engine.get_turn()
+        if turn != self.player.get_color():
+            return
 
         if self.move_initiated or not emitter.has_pawn() or\
                 emitter.get_pawn_color() != turn or self.clicked_cell is not None:
@@ -41,6 +43,8 @@ class GuiEventHandler:
 
     def on_cell_clicked(self, event: Event, emitter: CellView) -> None:
         turn = self.game_engine.get_turn()
+        if turn != self.player.get_color():
+            return
 
         if emitter.has_pawn() and emitter.get_pawn_color() == turn:
             if self.clicked_cell == emitter:

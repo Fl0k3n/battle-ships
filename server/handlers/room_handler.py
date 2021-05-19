@@ -90,3 +90,15 @@ class RoomHandler(LoginObserver):
 
     def get_joinable_rooms(self):
         return [self.rooms[room_id] for room_id in self.joinable_rooms]
+
+    def get_opponents_socket(self, socket, room_id):
+        if room_id not in self.rooms:
+            raise AttributeError(
+                f'5xx Server Error | Room {room_id} doesn\'t exist')
+
+        room = self.rooms[room_id]
+        if room.is_joinable():
+            raise AttributeError(
+                f'5xx Server Error | Room {room_id} has only 1 player')
+
+        return room.get_opponents_socket(socket)

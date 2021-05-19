@@ -17,6 +17,7 @@ class MsgHandler(ConnectionObserver, MsgReceivedObserver):
             ServerCodes.CREATE_ROOM: self.on_create_room,
             ServerCodes.GET_ROOMS: self.on_get_rooms,
             ServerCodes.JOIN_ROOM: self.on_join_room,
+            ServerCodes.PLAYER_MOVED: self.on_player_moved,
         }
 
     def on_connected(self, socket):
@@ -84,3 +85,16 @@ class MsgHandler(ConnectionObserver, MsgReceivedObserver):
         except AttributeError as ae:
             print(ae)
             CH.send_msg(socket, UserCodes.FAILED_TO_JOIN_ROOM, str(ae))
+
+    def on_player_moved(self, socket, data):
+        """Sends PLAYER_MOVED to the opponent of player with given socket
+            and ERROR to given socket if move shouldn't have been possible.
+        """
+        room_id = data['room_id']
+        try:
+            opp_socket = self.room_handler.get_opponents_socket(
+                socket, room_id)
+            CH.send_msg(opp_socket, UserCodes.PLAYER_MOVED, data['move_data'])
+        except AttributeError as ae:
+            print(ae)
+            CH.send_msg(socket, UserCodes.ERROR, str(ae))

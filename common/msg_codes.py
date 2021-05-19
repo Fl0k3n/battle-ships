@@ -26,6 +26,8 @@ class UserCodes(Enum):
     GUEST_JOINED_ROOM = 10
     # data should be a string with reason
     FAILED_TO_JOIN_ROOM = 11
+    # data should contain move data, see PLAYER_MOVED in client/utils/events
+    PLAYER_MOVED = 12
 
 
 class ServerCodes(Enum):
@@ -41,3 +43,5 @@ class ServerCodes(Enum):
     GET_ROOMS = 4
     # data should be {room_id: (int)}
     JOIN_ROOM = 5
+    # data should be {room_id: (int), move_data: Any}, for move_data see PLAYER_MOVED in client/utils/events
+    PLAYER_MOVED = 6
