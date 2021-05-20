@@ -13,7 +13,8 @@ QLabel#title {
 
 
 QFrame#login {
-    max-width: 700px;
+    max-width: 500px;
+    min-width: 500px;
     background-color: rgb(48, 126, 243);
     border-radius: 30px;
     padding: 30px;
@@ -81,4 +82,126 @@ QLabel#auth-msg {
     background-color: rgba(255, 21, 21, 0.9);
     padding: 5px;
     border-radius: 5px;
+}
+
+
+QFrame#menu {
+    background-color: rgb(48, 126, 243);
+    margin: 0;
+    margin-bottom: 100px;
+    border-radius: 5px;
+}
+
+QFrame#menu > *{
+    font-size: 24px;
+    color: #fff;
+}
+
+QFrame#menu > QLabel {
+    font-weight: 600;
+}
+
+QFrame#menu > QPushButton {
+    border: 0;
+    padding: 30px;
+    border-left: 2px solid rgba(0, 0, 0, 0.7);
+}
+
+
+QFrame#menu > QPushButton:hover {
+    background-color: rgb(79, 145, 245);
+}
+
+
+QFrame#menu > QFrame#menu-title {
+    padding: 0;
+    margin: 0;
+}
+
+QFrame#menu > QFrame#menu-title *{
+    font-size: 28px;
+    color: #fff;
+    font-weight: 700;
+}
+
+
+QFrame#search {
+    min-width: 500px;
+    max-width: 500px;
+    color: #000;
+    margin-top: 20px;
+}
+
+QFrame#search QLineEdit {
+    margin-left: 30px;
+    padding: 10px;
+    font-size: 20px;
+    color: #000;
+    border-radius: 10px;
+}
+
+
+QFrame#room-list {
+    max-width: 700px;
+    min-width: 700px;
+    min-height: 500px;
+    background-color: rgb(79, 145, 245);
+    border-radius: 30px;
+    padding: 30px;
+    margin-top: 20px;
+    font-size: 18px;
+    margin-bottom: 100px;
+}
+
+QFrame#room {
+    max-width: 600px;
+    min-width: 600px;
+    background-color: #fff;
+    border-radius: 30px;
+    padding: 20px;
+    color: #fff;
+    margin: 20px;
+}
+
+
+
+QFrame#room QLabel#owner,
+QFrame#room *#guest {
+    min-width: 150px;
+    max-width: 150px;
+    font-size: 25px;
+}
+
+QFrame#room QPushButton#guest {
+    border-radius: 10px;
+    background-color: #fff;
+    color: rgba(48, 126, 243, 1);
+    font-weight: 600;
+}
+
+QFrame#room QPushButton#guest:hover {
+    color: rgba(48, 126, 243, 0.8);
+}
+
+
+QFrame#room QLabel#vs {
+    max-width: 120px;
+    font-size: 56px;
+    font-weight: 700;
+    color: rgba(42, 80, 143, 0.9);
+    text-align: center;
+    border: 0;
+    border-left: 2px solid rgba(0, 0, 0, 0.7);
+    border-right: 2px solid rgba(0, 0, 0, 0.7);
+}
+
+QPushButton#nav-btn {
+    font-size: 20px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 1);
+    border: 0;
+}
+
+QPushButton#nav-btn:hover{
+    color: rgba(255, 255, 255, 0.8);
 }

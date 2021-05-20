@@ -44,6 +44,7 @@ class SessionHandler(MsgReceivedObserver):
 
         self._register_listneners()
         self.auth_win.show()
+        # self.main_win.show()
 
     def _register_listneners(self):
         self.auth_win.add_event_listener(Event.REGISTER, self.register)
@@ -100,6 +101,7 @@ class SessionHandler(MsgReceivedObserver):
         if code == UserCodes.LOGIN_SUCCESS and \
                 data['email'] == email and data['password'] == passwd:
             self.player = Player(email)
+            self.refresh_rooms(None, None)
             self.auth_win.close()
             self.main_win.show()
         else:
@@ -130,7 +132,7 @@ class SessionHandler(MsgReceivedObserver):
         code = resp['code']
         rooms = resp['data']
         if code == UserCodes.ROOMS_FETCHED:
-            emitter.clean_rooms()
+            self.main_win.clean_rooms()
             self.rooms = {}
             for obj in rooms:
                 room = Room.from_json(obj)

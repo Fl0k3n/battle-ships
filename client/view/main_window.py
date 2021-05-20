@@ -1,9 +1,11 @@
-from PyQt5.QtWidgets import QPushButton, QWidget, QLabel, QDialog, QVBoxLayout, QHBoxLayout
+from PyQt5.QtWidgets import QFrame, QPushButton, QWidget, QLabel, QDialog, QVBoxLayout, QHBoxLayout
+from PyQt5.QtGui import QColor, QCursor
 from utils.events import Event
 from utils.event_emitter import EventEmitter
-from model.player import Player
+from PyQt5.QtCore import Qt
 from model.room import Room
 from .room_list import RoomList
+from .search_frame import SearchFrame
 from typing import Any
 
 
@@ -14,26 +16,51 @@ class MainWindow(QDialog, EventEmitter):
 
         self.setGeometry(x, y, width, height)
 
-        self.layout = QHBoxLayout(self)
+        self.layout = QVBoxLayout(self)
+        self.layout.setAlignment(Qt.AlignTop)
         self._build_menu()
-        self.layout.addWidget(self.menu)
 
         self.room_list = RoomList(self.on_join_room)
+
+        self.search_frame = SearchFrame(
+            lambda text: self.room_list.room_searched(text))
+
+        self.layout.addWidget(self.search_frame)
+        self.layout.setAlignment(self.search_frame, Qt.AlignCenter)
+
         self.layout.addWidget(self.room_list)
+        self.layout.setAlignment(self.room_list, Qt.AlignCenter)
 
         self.setWindowTitle("Rooms")
+        self.setObjectName('main-win')
 
     def _build_menu(self) -> None:
-        self.menu = QWidget()
-        layout = QVBoxLayout(self.menu)
+        self.menu = QFrame()
+        self.menu.setObjectName('menu')
 
-        labels = ["Profile", "Create Room", "Refresh List", "Quit"]
-        handlers = [self.on_show_profile, self.on_create_room,
-                    self.on_refresh_rooms, self.on_quit]
+        self.layout.addWidget(self.menu)
+        layout = QHBoxLayout(self.menu)
+
+        title_label1 = QLabel("Checkers")
+        title_label2 = QLabel("Online")
+        title_label1.setAlignment(Qt.AlignCenter)
+        title_label2.setAlignment(Qt.AlignCenter)
+        title = QFrame()
+        title.setObjectName('menu-title')
+        title_layout = QVBoxLayout(title)
+        title_layout.addWidget(title_label1)
+        title_layout.addWidget(title_label2)
+
+        layout.addWidget(title)
+
+        labels = ["Refresh List", "Create Room", "Profile", "Quit"]
+        handlers = [self.on_refresh_rooms, self.on_create_room,
+                    self.on_show_profile, self.on_quit]
 
         for label, handler in zip(labels, handlers):
             btn = QPushButton(label)
             btn.clicked.connect(handler)
+            btn.setCursor(QCursor(Qt.PointingHandCursor))
             layout.addWidget(btn)
 
     def clean_rooms(self) -> None:
@@ -46,9 +73,11 @@ class MainWindow(QDialog, EventEmitter):
         print('profile')
 
     def on_create_room(self):
+        # print('create')
         self.call_listeners(Event.CREATE_ROOM)
 
     def on_refresh_rooms(self):
+        # print('refresh')
         self.call_listeners(Event.REFRESH_ROOMS)
 
     def on_quit(self):
