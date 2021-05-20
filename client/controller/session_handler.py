@@ -12,7 +12,6 @@ from common.msg_codes import ServerCodes, UserCodes
 from common.msg_received_observer import MsgReceivedObserver
 from typing import Tuple, Any
 import socket
-import threading
 from utils.worker import Worker
 from PyQt5.QtCore import QThread
 

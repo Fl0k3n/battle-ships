@@ -4,6 +4,7 @@ from utils.event_emitter import EventEmitter
 from model.player import Player
 from model.room import Room
 from .room_list import RoomList
+from typing import Any
 
 
 class MainWindow(QDialog, EventEmitter):
@@ -55,3 +56,8 @@ class MainWindow(QDialog, EventEmitter):
 
     def on_join_room(self, idx: int) -> None:
         self.call_listeners(Event.JOIN_ROOM, idx)
+
+    def moveEvent(self, event):
+        super(QDialog, self).moveEvent(event)
+        x, y = event.pos().x(), event.pos().y()
+        self.call_listeners(Event.WINDOW_MOVED, (x, y))
