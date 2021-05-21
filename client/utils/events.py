@@ -10,7 +10,8 @@ class Event(Enum):
     JOIN_ROOM = 5          # data is room id
     CREATE_ROOM = 6
     REFRESH_ROOMS = 7
-    # data is List[(old_i, old_j), (new_i, new_j), (beaten_i, beaten_j), last_move?]
+    # data is {from: (old_i, old_j), to: (new_i, new_j), beaten:(beaten_i, beaten_j), last_move?: T/F]}
     # where (beaten_i, beaten_j) should be -1, -1 if nothing was beaten last_move should be true or false
     PLAYER_MOVED = 8
     WINDOW_MOVED = 9       # emits (x, y) - new window position
+    DISCONNECT = 10

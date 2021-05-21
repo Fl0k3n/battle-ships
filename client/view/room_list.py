@@ -95,8 +95,8 @@ class RoomList(QFrame):
             join_btn.setObjectName('guest')
             join_btn.clicked.connect(lambda: self.join_handler(room.idx))
             join_btn.setCursor(QCursor(Qt.PointingHandCursor))
-            self.layout.addWidget(room_view)
 
+        self.layout.addWidget(room_view)
         self.layout.setAlignment(room_view, Qt.AlignCenter)
 
     def _get_shadow(self) -> QGraphicsDropShadowEffect:

@@ -14,6 +14,7 @@ from typing import Tuple, Any
 import socket
 from utils.worker import Worker
 from PyQt5.QtCore import QThread
+from utils.color import Color
 
 
 class SessionHandler(MsgReceivedObserver):
@@ -45,6 +46,7 @@ class SessionHandler(MsgReceivedObserver):
         self._register_listneners()
         self.auth_win.show()
         # self.main_win.show()
+        # self._init_game(Player('safasf', Color.WHITE))
 
     def _register_listneners(self):
         self.auth_win.add_event_listener(Event.REGISTER, self.register)
@@ -54,6 +56,9 @@ class SessionHandler(MsgReceivedObserver):
         self.main_win.add_event_listener(Event.JOIN_ROOM, self.join_room)
         self.main_win.add_event_listener(
             Event.REFRESH_ROOMS, self.refresh_rooms)
+
+        self.game_win.add_event_listener(Event.DISCONNECT, lambda evnt, emittr: print(
+            'dc requested session_handler line 60'))
 
 #----------------------------------------------------------------------------------- AUTH
 

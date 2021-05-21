@@ -1,3 +1,5 @@
+/* AUTH -----------------------------------------------------------*/
+
 QDialog#auth-window {
     background-color: #fff;
 }
@@ -85,6 +87,8 @@ QLabel#auth-msg {
 }
 
 
+/* MAIN -----------------------------------------------------------*/
+
 QFrame#menu {
     background-color: rgb(48, 126, 243);
     margin: 0;
@@ -164,7 +168,6 @@ QFrame#room {
 }
 
 
-
 QFrame#room QLabel#owner,
 QFrame#room *#guest {
     min-width: 150px;
@@ -204,4 +207,75 @@ QPushButton#nav-btn {
 
 QPushButton#nav-btn:hover{
     color: rgba(255, 255, 255, 0.8);
+}
+
+
+/* GAME -----------------------------------------------------------*/
+
+QFrame#board {
+    max-width: 800px;
+    min-width: 800px;
+    min-height: 800px;
+    max-height: 800px;
+}
+
+QFrame#game-info {
+    border: 0;
+    border-left: 5px solid #000;
+}
+
+QFrame#gtitle > * {
+    color: rgba(42, 80, 143, 0.9);
+    font-size: 56px;
+    font-weight: 700;
+}
+
+QFrame#gtitle {
+    margin-bottom: 50px;
+    border: 0;
+    border-bottom: 1px solid rgba(33, 33, 33, 0.9);
+}
+
+
+QFrame#status {
+    background-color: rgba(48, 126, 243, 0.85);
+    color: #000;
+    min-width: 280px;
+    max-width: 280px;
+    padding: 20px;
+    font-size: 28px;
+    font-weight: 600;
+    border-radius: 15px;
+}
+
+QFrame#stats {
+    background-color: rgba(48, 126, 243, 0.85);
+    min-width: 280px;
+    max-width: 280px;
+    padding: 15px;
+    border-radius: 20px;
+}
+
+QFrame#stats > * {
+    border: 0;
+    border-bottom: 1px solid rgba(33, 33, 33, 0.9);
+}
+
+
+QFrame#stats > * > * {
+    color: #000;
+    font-size: 16px
+}
+
+QPushButton#dc-btn {
+    font-size: 20px;
+    font-weight: 500;
+    padding: 20px;
+    border: 0;
+    background-color: rgba(48, 126, 243, 0.85);
+    border-radius: 10px;
+}
+
+QPushButton#dc-btn:hover {
+    background-color: rgba(48, 126, 243, 0.7);
 }

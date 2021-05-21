@@ -19,7 +19,10 @@ def main():
 
     auth_win = AuthWindow(100, 100, 700, 800)
     main_win = MainWindow(100, 100, 800, 800)
-    game_win = GameWindow(100, 100, 800, 800, 640, 640)
+    game_win = GameWindow(100, 100, 1200, 950, 640, 640)
+
+    # for win in (auth_win, main_win, game_win):
+    #     win.setFixedSize(win.size())
 
     auth_win.add_event_listener(
         Event.WINDOW_MOVED, lambda event, emitter, pos: main_win.move(*pos))

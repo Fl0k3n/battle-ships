@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import QFrame, QWidget
 from PyQt5.QtWidgets import QGridLayout
 from view.cell_view import CellView
 from typing import Iterable
@@ -7,7 +7,7 @@ from model.board import Board
 from utils.event_emitter import EventEmitter
 
 
-class BoardView(QWidget):
+class BoardView(QFrame):
     def __init__(self, board: Board, width: int, height: int, white_bottom: bool, parent: QWidget = None):
         super().__init__(parent)
         self.white_bottom = white_bottom
@@ -15,6 +15,7 @@ class BoardView(QWidget):
         self.height = height
         self.board = board
 
+        self.setObjectName('board')
         self.layout = QGridLayout()
         self.resize(width, height)
 
@@ -38,7 +39,8 @@ class BoardView(QWidget):
             for j, cell in enumerate(row):
                 cv = CellView(cell, cell_w, cell_h)
                 cv.draw()
-                self.layout.addWidget(cv, i, j)
+                self.layout.addWidget(
+                    cv, i if self.white_bottom else n - 1 - i, j if self.white_bottom else n - 1 - j)
                 arr.append(cv)
             self.cell_views.append(arr)
 
