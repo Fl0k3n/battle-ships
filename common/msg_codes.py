@@ -28,6 +28,10 @@ class UserCodes(Enum):
     FAILED_TO_JOIN_ROOM = 11
     # data should contain move data, see PLAYER_MOVED in client/utils/events
     PLAYER_MOVED = 12
+    # data should be an empty string, should be detected when one user waits for others move
+    ENEMY_DISCONNECTED = 13
+    # data should be an empty string
+    ROOM_LEFT = 14
 
 
 class ServerCodes(Enum):
@@ -45,3 +49,5 @@ class ServerCodes(Enum):
     JOIN_ROOM = 5
     # data should be {room_id: (int), move_data: Any}, for move_data see PLAYER_MOVED in client/utils/events
     PLAYER_MOVED = 6
+    # data should be empty string
+    LEAVE_ROOM = 7

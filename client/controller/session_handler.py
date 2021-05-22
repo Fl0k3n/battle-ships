@@ -28,7 +28,8 @@ class SessionHandler(MsgReceivedObserver):
 
         self.async_msg_handlers = {
             UserCodes.GUEST_JOINED_ROOM: self.on_enemy_joined,
-            UserCodes.PLAYER_MOVED: self.on_enemy_moved
+            UserCodes.PLAYER_MOVED: self.on_enemy_moved,
+            UserCodes.ROOM_LEFT: self.on_room_left
         }
 
         self.rooms = {}  # room_id -> Room
@@ -57,10 +58,9 @@ class SessionHandler(MsgReceivedObserver):
         self.main_win.add_event_listener(
             Event.REFRESH_ROOMS, self.refresh_rooms)
 
-        self.game_win.add_event_listener(Event.DISCONNECT, lambda evnt, emittr: print(
-            'dc requested session_handler line 60'))
+        self.game_win.add_event_listener(Event.LEAVE_ROOM, self.leave_room)
 
-#----------------------------------------------------------------------------------- AUTH
+# ----------------------------------------------------------------------------------- AUTH
 
     def register(self, event: Event, emitter: AuthWindow, data: Tuple[str, str]):
         # mutex?
@@ -114,7 +114,7 @@ class SessionHandler(MsgReceivedObserver):
 
         self.request_pending = False
 
-#----------------------------------------------------------------------------------- Rooms
+# ----------------------------------------------------------------------------------- Rooms
 
     def create_room(self, event: Event, emitter: MainWindow):
         # validate?
@@ -176,7 +176,30 @@ class SessionHandler(MsgReceivedObserver):
         self.gui_event_handler = GuiEventHandler(
             self.game_engine, self.player)
 
-#----------------------------------------------------------------------------------- GAME
+    def leave_room(self, event: Event, emitter: GameWindow):
+        CH.send_msg(self.server, ServerCodes.LEAVE_ROOM,
+                    {'room_id': self.room_id})
+
+        # TODO possible race condition
+        if self.waiting_for is None:
+            resp = CH.listen_for_messages(self.server, only_one=True)
+            if resp['code'] == UserCodes.ROOM_LEFT:
+                self.on_room_left(None)
+
+    def on_room_left(self, msg):
+        self.waiting_for = None
+        self.room_id = None
+        self.gui_event_handler = None
+        self.game_win.hide()
+        self.game_win = self.game_engine.stop()
+        self.game_engine = None
+        self.player.leave_game()
+        self.main_win.show()
+        self.refresh_rooms(None, None)
+
+
+# ----------------------------------------------------------------------------------- GAME
+
 
     def player_moved(self, event: Event, emitter: GameEngine, move_data: Any):
         data = {
@@ -196,7 +219,7 @@ class SessionHandler(MsgReceivedObserver):
         if not last_move:
             self._async_wait_for_single_msg(UserCodes.PLAYER_MOVED)
 
-#----------------------------------------------------------------------------------- Utility
+# ----------------------------------------------------------------------------------- Utility
 
     def _init_game(self, owner: Player, guest: Player = None):
         self.game_engine = GameEngine(self.game_win, owner, guest)
@@ -214,9 +237,13 @@ class SessionHandler(MsgReceivedObserver):
 
         if code in self.async_msg_handlers:
             self.async_msg_handlers[code](data)
+            self.waiting_for = None
         elif code == UserCodes.DISCONNECTED:
             print('server died. aborting')
             exit(1)
+        elif code == UserCodes.ENEMY_DISCONNECTED:
+            print('enemy dced!')
+            self.on_room_left(None)
         else:
             print(f'received unknown message: {msg}')
             if self.waiting_for is not None:

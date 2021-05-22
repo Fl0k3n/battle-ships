@@ -16,3 +16,6 @@ class Player:
 
     def get_email(self) -> str:
         return self.email
+
+    def leave_game(self) -> None:
+        self.in_game = False

@@ -4,6 +4,7 @@ from common.msg_codes import UserCodes
 import re
 import bcrypt
 from mongoengine.errors import ValidationError
+import threading
 
 
 class AuthHandler:
@@ -11,6 +12,8 @@ class AuthHandler:
         self.db_handler = db_handler
         self.user_handler = user_handler
         self.login_observers = login_observers
+        self.reg_mutex = threading.Lock()
+        self.log_mutex = threading.Lock()
 
     def register_user(self, socket, email, password, request_msg):
         """Tries to register user with given email and password.
@@ -22,27 +25,29 @@ class AuthHandler:
             password (string): users password in plain text
             request_msg (any): original request message
         """
-        validation_errs = self._validate_user_data(email, password)
+        # ensure that only 1 user gets to register with given email
+        with self.reg_mutex:
+            validation_errs = self._validate_user_data(email, password)
 
-        if len(validation_errs) > 0:
-            CH.send_msg(socket, UserCodes.REGISTER_FAILED,
-                        "\n".join(validation_errs))
-            return
+            if len(validation_errs) > 0:
+                CH.send_msg(socket, UserCodes.REGISTER_FAILED,
+                            "\n".join(validation_errs))
+                return
 
-        hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
+            hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
 
-        try:
-            self.db_handler.save_user(email, hashed)
-            print(f'registered {email} -{password}-')
-            CH.send_msg(socket, UserCodes.REGISTER_SUCCESS, request_msg)
-        except ValidationError as ve:
-            print(ve)
-            CH.send_msg(socket, UserCodes.REGISTER_FAILED,
-                        'unsupported email format')
-        except Exception as e:
-            print(e)
-            CH.send_msg(socket, UserCodes.REGISTER_FAILED,
-                        '500 Internal Server Error')
+            try:
+                self.db_handler.save_user(email, hashed)
+                print(f'registered {email} -{password}-')
+                CH.send_msg(socket, UserCodes.REGISTER_SUCCESS, request_msg)
+            except ValidationError as ve:
+                print(ve)
+                CH.send_msg(socket, UserCodes.REGISTER_FAILED,
+                            'unsupported email format')
+            except Exception as e:
+                print(e)
+                CH.send_msg(socket, UserCodes.REGISTER_FAILED,
+                            '500 Internal Server Error')
 
     def _validate_user_data(self, email, password):
         # basic validation should also be present on client side
@@ -69,11 +74,6 @@ class AuthHandler:
             password (string): users password in plain text
         """
 
-        if self.user_handler.is_logged_in(email):
-            CH.send_msg(socket, UserCodes.LOGIN_FAILED,
-                        f'User {email} is already logged in.')
-            return
-
         user = self.db_handler.find_user(email)
         err_msg = 'Wrong email or password'
 
@@ -81,11 +81,18 @@ class AuthHandler:
             CH.send_msg(socket, UserCodes.LOGIN_FAILED, err_msg)
             return
 
-        if bcrypt.checkpw(password.encode(), user.password):
-            # logged in
-            for login_observer in self.login_observers:
-                login_observer.on_login(socket, user)
+        # ensure that only 1 user gets to login with given email
+        with self.log_mutex:
+            if self.user_handler.is_logged_in(email):
+                CH.send_msg(socket, UserCodes.LOGIN_FAILED,
+                            f'User {email} is already logged in.')
+                return
 
-            CH.send_msg(socket, UserCodes.LOGIN_SUCCESS, request_msg)
-        else:
-            CH.send_msg(socket, UserCodes.LOGIN_FAILED, err_msg)
+            if bcrypt.checkpw(password.encode(), user.password):
+                # logged in
+                for login_observer in self.login_observers:
+                    login_observer.on_login(socket, user)
+
+                CH.send_msg(socket, UserCodes.LOGIN_SUCCESS, request_msg)
+            else:
+                CH.send_msg(socket, UserCodes.LOGIN_FAILED, err_msg)

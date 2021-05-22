@@ -16,7 +16,7 @@ class NetworkHandler:
         # init user, room state observers
         self.user_handler = UserHandler()
         self.room_handler = RoomHandler(self.user_handler)
-        self.login_observers = [self.user_handler, self.room_handler]
+        self.login_observers = [self.user_handler]
 
         # init database
         self.db_handler = DBHandler(self.DB_URI)
@@ -25,7 +25,7 @@ class NetworkHandler:
             self.db_handler, self.user_handler, self.login_observers)
 
         self.msg_handler = MsgHandler(
-            self.auth_handler, self.room_handler, self.login_observers)
+            self.auth_handler, self.room_handler, self.user_handler, self.login_observers)
         self.connection_observers = [self.msg_handler]
 
         # create server socket

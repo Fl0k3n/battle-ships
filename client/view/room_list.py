@@ -119,11 +119,12 @@ class RoomList(QFrame):
                 layout.addWidget(self.next_btn)
             elif self.cur_page > 1:
                 self.btns = self.back_btn
-            else:
+            elif len(self.rooms) > self.MAX_PER_PAGE * self.cur_page:
                 self.btns = self.next_btn
 
-        self.layout.addWidget(self.btns)
-        self.layout.setAlignment(self.btns, Qt.AlignCenter)
+        if self.btns is not None:
+            self.layout.addWidget(self.btns)
+            self.layout.setAlignment(self.btns, Qt.AlignCenter)
 
     def change_page(self, delta: int) -> None:
         self._clear_widgets()

@@ -13,6 +13,7 @@ class GameWindow(QDialog, EventEmitter):
 
         self.board_width = board_width
         self.board_height = board_height
+        self.title = title
 
         self.your_move_msg = 'Your Move!'
         self.enemy_move_msg = 'Enemy Move...'
@@ -24,6 +25,17 @@ class GameWindow(QDialog, EventEmitter):
         self.setLayout(self.layout)
         self.setGeometry(x, y, width, height)
         self.setWindowTitle(title)
+
+    def restart(self) -> "GameWindow":
+        rect = self.geometry()
+        res = GameWindow(rect.x(), rect.y(), rect.width(), rect.height(),
+                         self.board_width, self.board_height, self.title)
+
+        for event, listeners in self.listeners.items():
+            for listener in listeners:
+                res.add_event_listener(event, listener)
+
+        return res
 
     def draw_board(self, board: Board, white_bottom: bool) -> BoardView:
         self.board_view = BoardView(
@@ -61,7 +73,7 @@ class GameWindow(QDialog, EventEmitter):
         self.dc_btn.setCursor(QCursor(Qt.PointingHandCursor))
         self.dc_btn.setObjectName('dc-btn')
         self.dc_btn.clicked.connect(
-            lambda: self.call_listeners(Event.DISCONNECT))
+            lambda: self.call_listeners(Event.LEAVE_ROOM))
         layout.addWidget(self.dc_btn, alignment=Qt.AlignCenter)
 
         self.layout.addWidget(self.info)

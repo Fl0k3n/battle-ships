@@ -55,7 +55,7 @@ class CommunicationHandler:
                         full_msg += data
                         if len(full_msg) >= msg_len:
                             break
-                except ValueError as e:
+                except (ValueError, ConnectionResetError) as e:
                     # TODO implement more secure way of detecting disconnection
                     if data == '':
                         caller.on_msg_received(socket, {

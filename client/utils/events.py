@@ -14,4 +14,4 @@ class Event(Enum):
     # where (beaten_i, beaten_j) should be -1, -1 if nothing was beaten last_move should be true or false
     PLAYER_MOVED = 8
     WINDOW_MOVED = 9       # emits (x, y) - new window position
-    DISCONNECT = 10
+    LEAVE_ROOM = 10

@@ -21,6 +21,7 @@ class GameEngine(EventEmitter):
         self.enemy_score = 0
 
         self.owner.join_game(Color.WHITE)
+        self.timer = None
         if guest is not None:
             self.guest.join_game(Color.BLACK)
             self._run_timer()
@@ -38,6 +39,12 @@ class GameEngine(EventEmitter):
         self.turn = Color.WHITE
 
         self.board.update_valid_moves(self.turn)
+
+    def stop(self) -> GameWindow:
+        # returns new game window
+        if self.timer is not None:
+            self.timer.stop()
+        return self.game_window.restart()
 
     def next_round(self):
         self.turn = Color.reverse(self.turn)
@@ -115,6 +122,8 @@ class GameEngine(EventEmitter):
         self.timer = Timer()
         self.timer.moveToThread(self.thread)
         self.thread.started.connect(self.timer.run)
+        self.timer.finished.connect(self.thread.quit)
+        self.timer.finished.connect(self.timer.deleteLater)
         self.thread.finished.connect(self.thread.deleteLater)
         self.timer.one_sec.connect(lambda: self.game_window.update_time())
         self.thread.start()

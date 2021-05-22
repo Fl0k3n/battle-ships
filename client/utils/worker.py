@@ -22,8 +22,17 @@ class Worker(QObject):
 
 class Timer(QObject):
     one_sec = pyqtSignal()
+    finished = pyqtSignal()
+
+    def __init__(self):
+        super().__init__()
+        self.stopped = False
 
     def run(self):
-        while True:
+        while not self.stopped:
             time.sleep(1)
             self.one_sec.emit()
+        self.finished.emit()
+
+    def stop(self):
+        self.stopped = True

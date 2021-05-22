@@ -41,3 +41,6 @@ class Room:
 
     def get_opponents_socket(self, socket):
         return self.owner_socket if self.guest_socket == socket else self.guest_socket
+
+    def get_members(self):
+        return [self.owner_email, self.guest_email]
