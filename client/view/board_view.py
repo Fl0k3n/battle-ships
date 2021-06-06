@@ -1,4 +1,5 @@
-from PyQt5.QtWidgets import QFrame, QWidget
+from PyQt5.QtWidgets import QFrame, QLabel, QWidget
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QGridLayout
 from view.cell_view import CellView
 from typing import Iterable
@@ -40,7 +41,7 @@ class BoardView(QFrame):
                 cv = CellView(cell, cell_w, cell_h)
                 cv.draw()
                 self.layout.addWidget(
-                    cv, i if self.white_bottom else n - 1 - i, j if self.white_bottom else n - 1 - j)
+                    cv, i if self.white_bottom else n - i, j + 1 if self.white_bottom else n - (j + 1))
                 arr.append(cv)
             self.cell_views.append(arr)
 

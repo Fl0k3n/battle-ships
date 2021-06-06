@@ -45,7 +45,10 @@ class UserHandler(LoginObserver):
     def is_in_room(self, email=None, socket=None):
         # will be locked externally
         if socket is not None:
-            email = self.get_user(socket).email
+            user = self.get_user(socket)
+            if user is None:
+                return False
+            email = user.email
 
         return email in self.users_in_room
 
@@ -68,3 +71,6 @@ class UserHandler(LoginObserver):
 
     def get_user_mutex(self):
         return self.users_data_mutex
+
+    def get_user_sockets(self):
+        return self.user_sockets.keys()

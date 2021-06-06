@@ -16,7 +16,7 @@ class GameWindow(QDialog, EventEmitter):
         self.title = title
 
         self.your_move_msg = 'Your Move!'
-        self.enemy_move_msg = 'Enemy Move...'
+        self.enemy_move_msg = 'Opponent\'s Move...'
         self.secs = 0
 
         self.board_view = None
@@ -60,7 +60,7 @@ class GameWindow(QDialog, EventEmitter):
         title.setObjectName('gtitle')
         layout.addWidget(title, alignment=Qt.AlignCenter)
 
-        self.status_label = QLabel('Waiting For Enemy...')
+        self.status_label = QLabel('Waiting For Opponent...')
         self.status_label.setObjectName('status')
         layout.addWidget(self.status_label, alignment=Qt.AlignCenter)
         self.status_label.setGraphicsEffect(self._get_shadow())
@@ -80,8 +80,8 @@ class GameWindow(QDialog, EventEmitter):
 
     def _build_stats_grid(self) -> QFrame:
         keys = ['enemy', 'time', 'round', 'y_score', 'e_score', 'last_move']
-        text_contents = ['Enemy', 'Time', 'Round', 'Your Score',
-                         'Enemy Score',  'Last Move']
+        text_contents = ['Opponent', 'Time', 'Round', 'Your Score',
+                         'Opponent\'s Score',  'Last Move']
         defaults = ['waiting...', '0', '0', '0', '0', 'None']
 
         self.stats = {k: QLabel(v) for k, v in zip(keys, defaults)}
@@ -95,6 +95,7 @@ class GameWindow(QDialog, EventEmitter):
             sub_comp = QFrame()
             sub_layout = QHBoxLayout(sub_comp)
             label = QLabel(text)
+            label.setObjectName('stat-key')
             sub_layout.addWidget(label, alignment=Qt.AlignLeft)
             sub_layout.addWidget(self.stats[key], alignment=Qt.AlignCenter)
             layout.addWidget(sub_comp)

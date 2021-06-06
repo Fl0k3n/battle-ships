@@ -1,5 +1,5 @@
 autopep8==1.5.6
--e . 
+-e git+https://github.com/Fl0k3n/battle-ships.git@1129b55827485f2faa3b3158f8d423251b5c8786#egg=battle_ships
 bcrypt==3.2.0
 cffi==1.14.5
 dnspython==2.1.0
@@ -7,6 +7,9 @@ mongoengine==0.23.0
 pycodestyle==2.7.0
 pycparser==2.20
 pymongo==3.11.3
+PyQt5==5.15.4
+PyQt5-Qt5==5.15.2
+PyQt5-sip==12.8.1
 python-dotenv==0.17.0
 six==1.15.0
 toml==0.10.2

@@ -13,6 +13,7 @@ class RoomList(QFrame):
         self.join_handler = on_join_room_handler
         self.layout = QVBoxLayout(self)
         self.msg_label = QLabel("No rooms available")
+        self.msg_label.setObjectName('no-rooms')
 
         self.setGraphicsEffect(self._get_shadow())
 
@@ -29,7 +30,7 @@ class RoomList(QFrame):
 
         self.btns = None
 
-        self.layout.addWidget(self.msg_label)
+        self.layout.addWidget(self.msg_label, alignment=Qt.AlignCenter)
         self.room_widgets = []
         self.rooms = []
 
@@ -48,7 +49,8 @@ class RoomList(QFrame):
     def clear_list(self) -> None:
         if len(self.room_widgets) > 0:
             self.msg_label = QLabel("No rooms available")
-            self.layout.addWidget(self.msg_label)
+            self.msg_label.setObjectName('no-rooms')
+            self.layout.addWidget(self.msg_label, alignment=Qt.AlignCenter)
 
         self.cur_page = 1
         self._clear_widgets()
@@ -101,9 +103,9 @@ class RoomList(QFrame):
 
     def _get_shadow(self) -> QGraphicsDropShadowEffect:
         shadow = QGraphicsDropShadowEffect()
-        shadow.setBlurRadius(6)
+        shadow.setBlurRadius(8)
         shadow.setOffset(5)
-        shadow.setColor(QColor(0, 0, 0, 100))
+        shadow.setColor(QColor(0, 0, 0, 120))
         return shadow
 
     def handle_pages(self, inner_call: bool) -> None:

@@ -209,6 +209,11 @@ QPushButton#nav-btn:hover{
     color: rgba(255, 255, 255, 0.8);
 }
 
+QLabel#no-rooms {
+    font-size: 36px;
+    font-weight: 500;
+    color: #fff;
+}
 
 /* GAME -----------------------------------------------------------*/
 
@@ -243,7 +248,7 @@ QFrame#status {
     min-width: 280px;
     max-width: 280px;
     padding: 20px;
-    font-size: 28px;
+    font-size: 24px;
     font-weight: 600;
     border-radius: 15px;
 }
@@ -252,7 +257,7 @@ QFrame#stats {
     background-color: rgba(48, 126, 243, 0.85);
     min-width: 280px;
     max-width: 280px;
-    padding: 15px;
+    padding: 10px;
     border-radius: 20px;
 }
 
@@ -264,7 +269,11 @@ QFrame#stats > * {
 
 QFrame#stats > * > * {
     color: #000;
-    font-size: 16px
+    font-size: 16px;
+}
+
+QLabel#stat-key {
+    min-width: 150px;
 }
 
 QPushButton#dc-btn {

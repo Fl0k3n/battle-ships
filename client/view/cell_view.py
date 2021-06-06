@@ -21,8 +21,8 @@ class CellView(QWidget, EventEmitter):
         self.width = width
         self.height = height
 
-        self.pawn_view_width = int(self.width * 0.95)
-        self.pawn_view_height = int(self.height * 0.95)
+        self.pawn_view_width = int(self.width)
+        self.pawn_view_height = int(self.height)
 
         self.cell = cell
 

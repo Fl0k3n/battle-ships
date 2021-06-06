@@ -14,7 +14,8 @@ from typing import Tuple, Any
 import socket
 from utils.worker import Worker
 from PyQt5.QtCore import QThread
-from utils.color import Color
+import atexit
+import sys
 
 
 class SessionHandler(MsgReceivedObserver):
@@ -34,11 +35,8 @@ class SessionHandler(MsgReceivedObserver):
 
         self.rooms = {}  # room_id -> Room
 
-        config = dotenv_values('../.config')
-        PORT = int(config['PORT']) if 'PORT' in config else 5555
+        self._connect_to_server()
 
-        self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server.connect((socket.gethostname(), PORT))
         self.threads = []
         self.auth_win = auth_win
         self.main_win = main_win
@@ -48,6 +46,18 @@ class SessionHandler(MsgReceivedObserver):
         self.auth_win.show()
         # self.main_win.show()
         # self._init_game(Player('safasf', Color.WHITE))
+
+    def _connect_to_server(self):
+        config = dotenv_values('../.config')
+        PORT = int(config['PORT']) if 'PORT' in config else 5555
+        try:
+            self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.server.connect((socket.gethostname(), PORT))
+            atexit.register(lambda: self.server.close())
+        except ConnectionRefusedError as e:
+            print('Failed to connect to the server')
+            print(e)
+            sys.exit(1)
 
     def _register_listneners(self):
         self.auth_win.add_event_listener(Event.REGISTER, self.register)
@@ -63,7 +73,6 @@ class SessionHandler(MsgReceivedObserver):
 # ----------------------------------------------------------------------------------- AUTH
 
     def register(self, event: Event, emitter: AuthWindow, data: Tuple[str, str]):
-        # mutex?
         if self.request_pending or self.player is not None:
             return
 
@@ -82,8 +91,11 @@ class SessionHandler(MsgReceivedObserver):
         if code == UserCodes.REGISTER_SUCCESS and \
                 data['email'] == email and data['password'] == passwd:
             emitter.user_registered(email)
-        else:
+        elif code == UserCodes.REGISTER_FAILED:
             emitter.register_failed(data)
+        else:
+            self._handle_unexpected_msg(
+                code, resp['data'], 'While trying to register got')
 
         self.request_pending = False
 
@@ -109,8 +121,11 @@ class SessionHandler(MsgReceivedObserver):
             self.refresh_rooms(None, None)
             self.auth_win.close()
             self.main_win.show()
-        else:
+        elif code == UserCodes.LOGIN_FAILED:
             emitter.login_failed(data)
+        else:
+            self._handle_unexpected_msg(
+                code, resp['data'], 'While trying to login got')
 
         self.request_pending = False
 
@@ -127,8 +142,8 @@ class SessionHandler(MsgReceivedObserver):
             self._init_game(self.player)
             self._async_wait_for_single_msg(UserCodes.GUEST_JOINED_ROOM)
         else:
-            print('failed to create room')
-            print(resp)
+            self._handle_unexpected_msg(
+                code, resp['data'], 'While trying to create room got')
 
     def refresh_rooms(self, event: Event, emitter: MainWindow):
         CH.send_msg(self.server, ServerCodes.GET_ROOMS, '')
@@ -144,8 +159,8 @@ class SessionHandler(MsgReceivedObserver):
                 self.rooms[room.idx] = room
                 self.main_win.add_room(room)
         else:
-            print('failed to fetch rooms')
-            print(resp)
+            self._handle_unexpected_msg(
+                code, resp['data'], 'While trying to refresh rooms got')
 
     def join_room(self,  event: Event, emitter: MainWindow, idx: int) -> None:
         CH.send_msg(self.server, ServerCodes.JOIN_ROOM, {'room_id': idx})
@@ -164,7 +179,8 @@ class SessionHandler(MsgReceivedObserver):
         elif code == UserCodes.FAILED_TO_JOIN_ROOM:
             print(f'Failed to join room.\n{resp["data"]}')
         else:
-            print(f'got unknown msg: {resp}')
+            self._handle_unexpected_msg(
+                code, resp['data'], 'While trying to join room got:')
 
     def on_enemy_joined(self, msg):
         if self.game_engine.is_running():
@@ -180,11 +196,13 @@ class SessionHandler(MsgReceivedObserver):
         CH.send_msg(self.server, ServerCodes.LEAVE_ROOM,
                     {'room_id': self.room_id})
 
-        # TODO possible race condition
         if self.waiting_for is None:
             resp = CH.listen_for_messages(self.server, only_one=True)
             if resp['code'] == UserCodes.ROOM_LEFT:
                 self.on_room_left(None)
+            else:
+                self._handle_unexpected_msg(resp['code'], resp['data'],
+                                            'Received unexpected msg while trying to leave room')
 
     def on_room_left(self, msg):
         self.waiting_for = None
@@ -238,14 +256,11 @@ class SessionHandler(MsgReceivedObserver):
         if code in self.async_msg_handlers:
             self.async_msg_handlers[code](data)
             self.waiting_for = None
-        elif code == UserCodes.DISCONNECTED:
-            print('server died. aborting')
-            exit(1)
         elif code == UserCodes.ENEMY_DISCONNECTED:
             print('enemy dced!')
             self.on_room_left(None)
         else:
-            print(f'received unknown message: {msg}')
+            self._handle_unexpected_msg(code, data, '')
             if self.waiting_for is not None:
                 print(f'Trying again for {self.waiting_for}')
                 self._async_wait_for_single_msg(self.waiting_for)
@@ -268,3 +283,14 @@ class SessionHandler(MsgReceivedObserver):
         self.thread.start()
 
         self.waiting_for = msg_type
+
+    def _handle_unexpected_msg(self, code, msg_data, description):
+        if code == UserCodes.DISCONNECTED:
+            self._handle_server_term()
+        else:
+            print(description)
+            print(f'Received: {code}\n{msg_data}')
+
+    def _handle_server_term(self):
+        print('server died. aborting')
+        exit(1)

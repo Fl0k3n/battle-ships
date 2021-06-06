@@ -42,8 +42,10 @@ class AuthWindow(QDialog, EventEmitter):
 
     def on_register(self, email: str, passw: str, rep_passw: str) -> None:
         self._delete_msg()
-        # TODO validate passwd = rep .. etc
-        self.call_listeners(Event.REGISTER, (email, passw))
+        if passw != rep_passw:
+            self._show_msg('Passwords don\'t match')
+        else:
+            self.call_listeners(Event.REGISTER, (email, passw))
 
     def on_change_view(self) -> None:
         self._delete_msg()

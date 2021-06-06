@@ -11,6 +11,7 @@ class MsgHandler(ConnectionObserver, MsgReceivedObserver):
         self.room_handler = room_handler
         self.user_handler = user_handler
         self.login_observers = login_observers
+        self.terminating = False
 
         self.handlers = {
             ServerCodes.REGISTER: self.on_register,
@@ -23,10 +24,13 @@ class MsgHandler(ConnectionObserver, MsgReceivedObserver):
         }
 
     def on_connected(self, socket):
-        threading.Thread(target=CH.listen_for_messages,
-                         args=(socket, self)).start()
+        thread = threading.Thread(target=CH.listen_for_messages,
+                                  args=(socket, self))
+        thread.start()
 
     def on_disconnected(self, socket):
+        if self.terminating:
+            return
         print('disconnected!')
         self.on_leave_room(socket, None)
 
@@ -124,3 +128,14 @@ class MsgHandler(ConnectionObserver, MsgReceivedObserver):
             CH.send_msg(opp_socket, UserCodes.ENEMY_DISCONNECTED, '')
 
         CH.send_msg(socket, UserCodes.ROOM_LEFT, '')
+
+    def server_terminates(self):
+        self.terminating = True
+        for socket in self.user_handler.get_user_sockets():
+            try:
+                CH.send_msg(socket, UserCodes.DISCONNECTED, '')
+                socket.close()
+            except Exception as e:
+                # ignore it since server terminates anyway
+                print("Failed to send termination message")
+                print(e)
